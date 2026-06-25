@@ -7,7 +7,7 @@ from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult, Mess
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger, AstrBotConfig
 
-@register("bili_live_notice", "Binbim", "B站UP主开播监测插件", "1.0.0", "https://github.com/Binbim/astrbot_plugin_BiliBiliOBS")
+@register("bili_live_notice", "Binbim", "B站UP主开播监测插件", "1.1.0", "https://github.com/Binbim/astrbot_plugin_BiliBiliOBS")
 class BiliLiveNoticePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig = None):
         super().__init__(context)
@@ -347,6 +347,10 @@ class BiliLiveNoticePlugin(Star):
             
             # 保存配置
             await self.save_config()
+            
+            # 如果当前正在直播，立即发送开播通知
+            if status_info.get("live_status") == 1:
+                await self.send_live_notification(uid, status_info, self.monitored_uids[uid])
             
             uname = status_info.get("uname", "未知UP主")
             yield event.plain_result(f"✅ 已添加 {uname}(UID:{uid}) 到监控列表")
